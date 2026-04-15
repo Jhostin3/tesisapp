@@ -17,26 +17,6 @@ const mapBlock = (row: any): ScheduleBlock => ({
 
 const spanishDays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
-const isCurrentDay = (row: any) => {
-  const now = new Date();
-  const dayNum = now.getDay();
-  const candidates = [
-    String(row.dia_semana),
-    String(row.dia),
-    String(row.day),
-  ].filter(Boolean).map(String);
-  if (!candidates.length) return false;
-  const spanish = spanishDays[dayNum];
-  return candidates.some((c) => {
-    const lower = c.toLowerCase();
-    if (Number(c) === dayNum) return true;
-    if (Number(c) === dayNum + 1) return true;
-    if (lower.includes(spanish.toLowerCase())) return true;
-    if (lower.includes(spanish.slice(0, 3).toLowerCase())) return true;
-    return false;
-  });
-};
-
 export const scheduleService = {
   byStudent: async (studentId?: string): Promise<ScheduleBlock[]> => {
     if (!studentId) return [];
@@ -46,7 +26,19 @@ export const scheduleService = {
       .eq('estudiante_id', studentId)
       .order('hora_inicio', { ascending: true });
     if (error || !data) return [];
-    const filtered = data.filter(isCurrentDay);
+    const now = new Date();
+    const dbDayNum = now.getDay() === 0 ? 7 : now.getDay();
+    const filtered = data.filter((row: any) => {
+      if (row.dia_semana !== undefined && row.dia_semana !== null) {
+        return Number(row.dia_semana) === dbDayNum;
+      }
+      if (row.dia !== undefined || row.day !== undefined) {
+        const val = String(row.dia || row.day).toLowerCase();
+        const spanish = spanishDays[dbDayNum % 7].toLowerCase();
+        return val.includes(spanish) || val.includes(spanish.slice(0, 3));
+      }
+      return false;
+    });
     const mapped = filtered.map(mapBlock);
     mapped.sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
     return mapped;
