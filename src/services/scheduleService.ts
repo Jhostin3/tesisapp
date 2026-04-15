@@ -44,11 +44,11 @@ export const scheduleService = {
       .from('v_horario_estudiante')
       .select('*')
       .eq('estudiante_id', studentId)
-      .order('bloque_numero', { ascending: true });
+      .order('hora_inicio', { ascending: true });
     if (error || !data) return [];
     const filtered = data.filter(isCurrentDay);
     const mapped = filtered.map(mapBlock);
-    mapped.sort((a, b) => (a.blockNumber || 0) - (b.blockNumber || 0));
+    mapped.sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
     return mapped;
   },
 };
