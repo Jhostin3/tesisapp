@@ -70,6 +70,9 @@ export type ScheduleBlock = {
   startTime: string;
   endTime: string;
   place?: string;
+  type?: string;
+  title?: string;
+  blockNumber?: number;
 };
 
 export type CourseSummary = {

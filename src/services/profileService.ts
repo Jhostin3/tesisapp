@@ -10,26 +10,17 @@ const normalizeRole = (value?: string | null): RoleName => {
 };
 
 const courseLabel = (course: any) => (
-  `${course?.nivel || ''} ${course?.nombre || ''} ${course?.paralelo || ''}`.trim() || 'Curso por asignar'
+  `${course?.nivel || ''} ${course?.nombre || course?.curso || course?.curso_nombre || ''} ${course?.paralelo || ''}`.trim() || 'Curso por asignar'
 );
 
 const fetchCourse = async (studentId?: string) => {
   if (!studentId) return undefined;
-  const { data: link } = await supabase
-    .from('estudiante_curso')
-    .select('curso_id,estado,fecha_asignacion')
+  const { data } = await supabase
+    .from('v_estudiante_curso_actual')
+    .select('*')
     .eq('estudiante_id', studentId)
-    .eq('estado', 'Activo')
-    .order('fecha_asignacion', { ascending: false })
-    .limit(1)
     .maybeSingle();
-  if (!link?.curso_id) return undefined;
-  const { data: course } = await supabase
-    .from('cursos')
-    .select('id,nombre,nivel,paralelo')
-    .eq('id', link.curso_id)
-    .maybeSingle();
-  return courseLabel(course);
+  return data ? courseLabel(data) : undefined;
 };
 
 const mapGuard = (profile: any, personal: any): GuardProfile => ({

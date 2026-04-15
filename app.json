@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "tesisapp",
+    "name": "Edunova",
     "slug": "tesisapp",
-    "version": "1.0.0",
+    "version": "1.01",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tesisapp",
@@ -12,6 +12,8 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.edunova.app",
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
