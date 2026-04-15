@@ -1,7 +1,7 @@
 {
   "name": "tesisapp",
   "main": "expo/AppEntry",
-  "version": "1.0.0",
+  "version": "1.01",
   "scripts": {
     "dev": "expo start",
     "start": "expo start",
