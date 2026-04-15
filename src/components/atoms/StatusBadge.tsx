@@ -9,9 +9,13 @@ type Props = { label: string };
 const tone: Record<string, { bg: string; text: string }> = {
   Registrado: { bg: '#E4F6EC', text: colors.success },
   Activo: { bg: '#E4F6EC', text: colors.success },
+  'A tiempo': { bg: '#E4F6EC', text: colors.success },
   Pendiente: { bg: '#FFF4DF', text: colors.warning },
   Observado: { bg: '#FFF4DF', text: colors.warning },
+  Atrasado: { bg: '#FFF4DF', text: colors.warning },
   'En turno': { bg: '#E8F0FF', text: colors.primary },
+  entrada: { bg: colors.primaryLight, text: colors.primary },
+  salida: { bg: colors.accentLight, text: colors.accent },
 };
 
 export default function StatusBadge({ label }: Props) {

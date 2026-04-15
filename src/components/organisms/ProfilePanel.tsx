@@ -4,23 +4,24 @@ import AppButton from '../atoms/AppButton';
 import SectionHeader from '../molecules/SectionHeader';
 import InfoRow from '../molecules/InfoRow';
 import StatusBadge from '../atoms/StatusBadge';
-import { colors } from '../../constants/colors';
-import { radius, spacing } from '../../constants/layout';
-import type { GuardProfile } from '../../types/models';
+import AppCard from '../atoms/AppCard';
+import type { SessionUser } from '../../types/models';
 
-type Props = { profile: GuardProfile; onLogout: () => void };
+type Props = { profile: SessionUser; onLogout: () => void };
 
 export default function ProfilePanel({ profile, onLogout }: Props) {
+  const title = profile.role === 'guardia' ? 'Cuenta del guardia' : 'Cuenta del estudiante';
   return (
     <View style={styles.wrap}>
-      <SectionHeader title="Cuenta del guardia" subtitle="Información institucional" />
-      <View style={styles.card}>
+      <SectionHeader title={title} subtitle="Información institucional" />
+      <AppCard>
         <StatusBadge label={profile.status} />
         <InfoRow label="Nombre" value={profile.name} />
         <InfoRow label="Correo" value={profile.email} />
         <InfoRow label="Rol" value={profile.role} />
-        <InfoRow label="Campus" value={profile.campus} />
-      </View>
+        <InfoRow label="Cédula" value={profile.cedula || '-'} />
+        <InfoRow label="Referencia" value={profile.role === 'guardia' ? profile.campus : profile.course} />
+      </AppCard>
       <AppButton title="Cerrar sesión" variant="secondary" onPress={onLogout} />
     </View>
   );
@@ -28,5 +29,4 @@ export default function ProfilePanel({ profile, onLogout }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { gap: 10 },
-  card: { backgroundColor: colors.white, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: spacing.sm, gap: 8 },
 });

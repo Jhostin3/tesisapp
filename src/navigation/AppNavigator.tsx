@@ -1,46 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import LoginScreen from '../screens/LoginScreen';
-import HomeScreen from '../screens/HomeScreen';
-import AttendanceScreen from '../screens/AttendanceScreen';
-import StudentSearchScreen from '../screens/StudentSearchScreen';
-import RecentLogsScreen from '../screens/RecentLogsScreen';
-import ProfileScreen from '../screens/ProfileScreen';
+import AppText from '../components/atoms/AppText';
+import AuthNavigator from './AuthNavigator';
+import GuardNavigator from './GuardNavigator';
+import StudentNavigator from './StudentNavigator';
 import { authService } from '../services/authService';
-import { colors } from '../constants/colors';
-import type { MainTabParamList, RootStackParamList } from '../types/navigation';
+import type { RootStackParamList } from '../types/navigation';
 import type { Session } from '../types/models';
 
-const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
-function MainTabs({ session, onLogout }: { session: Session; onLogout: () => void }) {
-  return (
-    <Tab.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.primary }, headerTintColor: colors.white }}>
-      <Tab.Screen name="Inicio" component={HomeScreen} initialParams={{ guard: session.user }} />
-      <Tab.Screen name="Asistencia" component={AttendanceScreen} />
-      <Tab.Screen name="Buscar" component={StudentSearchScreen} />
-      <Tab.Screen name="Historial" component={RecentLogsScreen} />
-      <Tab.Screen name="Perfil">{() => <ProfileScreen guard={session.user} onLogout={onLogout} />}</Tab.Screen>
-    </Tab.Navigator>
-  );
-}
 
 export default function AppNavigator() {
   const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    authService.getSession().then(setSession);
+    authService.getSession().then(setSession).finally(() => setLoading(false));
   }, []);
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <AppText variant="subtitle">Cargando Edunova...</AppText>
+      </View>
+    );
+  }
+
+  const logout = () => setSession(null);
+  const user = session?.user;
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!session ? (
-        <Stack.Screen name="Auth">{() => <LoginScreen onLogin={setSession} />}</Stack.Screen>
-      ) : (
-        <Stack.Screen name="Main">{() => <MainTabs session={session} onLogout={() => setSession(null)} />}</Stack.Screen>
-      )}
+      {!session ? <Stack.Screen name="Auth">{() => <AuthNavigator onLogin={setSession} />}</Stack.Screen> : null}
+      {user?.role === 'guardia' ? <Stack.Screen name="Guardia">{() => <GuardNavigator guard={user} onLogout={logout} />}</Stack.Screen> : null}
+      {user?.role === 'estudiante' ? <Stack.Screen name="Estudiante">{() => <StudentNavigator student={user} onLogout={logout} />}</Stack.Screen> : null}
     </Stack.Navigator>
   );
 }

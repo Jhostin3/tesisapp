@@ -1,27 +1,39 @@
 import React from 'react';
-import { TextInput, StyleSheet, TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../constants/colors';
 import { radius, spacing } from '../../constants/layout';
 
-export default function AppInput(props: TextInputProps) {
+type Props = TextInputProps & { icon?: keyof typeof Ionicons.glyphMap };
+
+export default function AppInput({ icon, ...props }: Props) {
   return (
-    <TextInput
-      placeholderTextColor={colors.textMuted}
-      style={styles.input}
-      autoCapitalize="none"
-      {...props}
-    />
+    <View style={styles.wrap}>
+      {icon ? <Ionicons name={icon} size={18} color={colors.primary} /> : null}
+      <TextInput
+        placeholderTextColor={colors.textMuted}
+        style={styles.input}
+        autoCapitalize="none"
+        {...props}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  input: {
-    backgroundColor: colors.white,
+  wrap: {
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: spacing.md,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 14,
     fontSize: 15,
     color: colors.text,
   },

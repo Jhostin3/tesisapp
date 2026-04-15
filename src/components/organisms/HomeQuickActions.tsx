@@ -1,14 +1,14 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import AppButton from '../atoms/AppButton';
+import ActionCard from '../molecules/ActionCard';
 import SectionHeader from '../molecules/SectionHeader';
 
 type Props = { onPressAction: (screen: 'Asistencia' | 'Buscar' | 'Historial') => void };
 
 const actions = [
-  { key: 'Asistencia', label: 'Registrar asistencia' },
-  { key: 'Buscar', label: 'Buscar estudiante' },
-  { key: 'Historial', label: 'Ver historial reciente' },
+  { key: 'Asistencia', title: 'Registrar asistencia', subtitle: 'Ingreso o salida manual', icon: 'scan' },
+  { key: 'Buscar', title: 'Buscar estudiante', subtitle: 'Datos básicos y curso actual', icon: 'search' },
+  { key: 'Historial', title: 'Ver historial', subtitle: 'Eventos recientes del turno', icon: 'time' },
 ] as const;
 
 export default function HomeQuickActions({ onPressAction }: Props) {
@@ -16,7 +16,7 @@ export default function HomeQuickActions({ onPressAction }: Props) {
     <View style={styles.wrap}>
       <SectionHeader title="Accesos rápidos" subtitle="Funciones principales del turno" />
       {actions.map((action) => (
-        <AppButton key={action.key} title={action.label} variant="secondary" onPress={() => onPressAction(action.key)} />
+        <ActionCard key={action.key} title={action.title} subtitle={action.subtitle} icon={action.icon} onPress={() => onPressAction(action.key)} />
       ))}
     </View>
   );

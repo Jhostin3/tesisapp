@@ -11,15 +11,17 @@ type Props = {
 export default function ScreenWrapper({ children, scroll = false }: Props) {
   if (scroll) {
     return (
-      <ScrollView style={styles.base} contentContainerStyle={styles.content}>
-        {children}
-      </ScrollView>
+      <SafeAreaView style={styles.base}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          {children}
+        </ScrollView>
+      </SafeAreaView>
     );
   }
-  return <SafeAreaView style={styles.base}>{children}</SafeAreaView>;
+  return <SafeAreaView style={[styles.base, styles.content]}>{children}</SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
-  base: { flex: 1, backgroundColor: colors.background, padding: spacing.md },
-  content: { gap: spacing.md, paddingBottom: spacing.xl },
+  base: { flex: 1, backgroundColor: colors.background },
+  content: { gap: spacing.md, padding: spacing.md, paddingBottom: spacing.xl },
 });

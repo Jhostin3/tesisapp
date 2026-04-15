@@ -24,7 +24,7 @@ export default function LoginScreen({ onLogin }: Props) {
   };
 
   return (
-    <AuthTemplate title="Edunova Guardia" subtitle="Acceso institucional para control de ingreso">
+    <AuthTemplate title="Hola de nuevo" subtitle="Ingresa con tu correo institucional de Edunova">
       <LoginForm onSubmit={handleLogin} loading={loading} error={error} />
     </AuthTemplate>
   );
