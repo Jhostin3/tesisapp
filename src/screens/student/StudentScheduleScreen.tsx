@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
+import AppText from '../../components/atoms/AppText';
 import EmptyState from '../../components/molecules/EmptyState';
 import ScheduleSection from '../../components/organisms/ScheduleSection';
 import DashboardTemplate from '../../components/templates/DashboardTemplate';
@@ -19,17 +20,23 @@ export default function StudentScheduleScreen({ route }: Props) {
   useFocusEffect(useCallback(() => {
     scheduleService.byStudent(student.studentId).then(setBlocks);
   }, [student.studentId]));
-
-  const groups = blocks.reduce<Record<string, ScheduleBlock[]>>((acc, block) => {
-    acc[block.day] = [...(acc[block.day] || []), block];
-    return acc;
-  }, {});
-
+  const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const now = new Date();
+  const dayName = days[now.getDay()];
   return (
     <DashboardTemplate title="Horario" subtitle={`${student.course} · clases y bloques activos`}>
       <View style={styles.list}>
-        {Object.entries(groups).map(([day, items]) => <ScheduleSection key={day} day={day} blocks={items} />)}
-        {!blocks.length ? <EmptyState title="Horario por publicar" subtitle="La estructura queda lista para horarios y clubes." /> : null}
+        {blocks.length ? (
+          <>
+            <View style={styles.header}>
+              <AppText variant="hero">{dayName}</AppText>
+              <AppText variant="caption">{blocks.length} bloques programados</AppText>
+            </View>
+            <ScheduleSection day={dayName} blocks={blocks} showDayHeader={false} />
+          </>
+        ) : (
+          <EmptyState title="Hoy no tienes actividades" subtitle="" />
+        )}
       </View>
     </DashboardTemplate>
   );
@@ -37,4 +44,5 @@ export default function StudentScheduleScreen({ route }: Props) {
 
 const styles = StyleSheet.create({
   list: { gap: spacing.sm },
+  header: { paddingHorizontal: spacing.xs, gap: spacing.xs },
 });
