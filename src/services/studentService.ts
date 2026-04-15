@@ -3,20 +3,16 @@ import type { Student } from '../types/models';
 
 const buildName = (first?: string, last?: string) => `${first || ''} ${last || ''}`.trim();
 const courseText = (course: any) => (
-  `${course?.nivel || ''} ${course?.nombre || ''} ${course?.paralelo || ''}`.trim() || 'Sin curso asignado'
+  `${course?.nivel || ''} ${course?.nombre || course?.curso || course?.curso_nombre || ''} ${course?.paralelo || ''}`.trim() || 'Sin curso asignado'
 );
 
 const activeCourses = async (studentIds: string[]) => {
   if (!studentIds.length) return new Map<string, string>();
-  const { data: links } = await supabase
-    .from('estudiante_curso')
-    .select('estudiante_id,curso_id,fecha_asignacion,estado')
-    .in('estudiante_id', studentIds)
-    .eq('estado', 'Activo');
-  const courseIds = [...new Set((links || []).map((link: any) => link.curso_id))];
-  const { data: courses } = await supabase.from('cursos').select('id,nombre,nivel,paralelo').in('id', courseIds);
-  const courseMap = new Map((courses || []).map((course: any) => [course.id, courseText(course)]));
-  return new Map((links || []).map((link: any) => [link.estudiante_id, courseMap.get(link.curso_id) || '']));
+  const { data } = await supabase
+    .from('v_estudiante_curso_actual')
+    .select('*')
+    .in('estudiante_id', studentIds);
+  return new Map((data || []).map((item: any) => [item.estudiante_id, courseText(item)]));
 };
 
 export const studentService = {

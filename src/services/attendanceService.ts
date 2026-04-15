@@ -23,59 +23,41 @@ const normalizeStatus = (value?: string) => {
   return value || 'Registrado';
 };
 
+const mapLog = (item: any): AttendanceLog => ({
+  id: String(item.id || item.asistencia_id || `${item.estudiante_id}-${item.fecha}-${item.hora}`),
+  name: item.estudiante || item.nombre || item.estudiante_nombre || 'Asistencia registrada',
+  status: normalizeStatus(item.estado),
+  code: item.identificador || item.cedula || item.codigo || '-',
+  type: normalizeType(item.tipo || item.accion),
+  date: item.fecha || formatDate(item.created_at),
+  time: item.hora || formatTime(item.created_at),
+});
+
 export const attendanceService = {
   register: async (identifier: string, type: 'entrada' | 'salida' = 'entrada'): Promise<AttendanceResult> => {
     const value = identifier.trim();
     if (!value) throw new Error('Ingresa un identificador válido');
-    const { data, error } = await supabase
-      .from('asistencias')
-      .insert({ identificador: value, tipo: type, estado: 'Registrado', origen: 'app_guardia' })
-      .select('id,estado,identificador,tipo,created_at')
-      .single();
-    if (error || !data) throw new Error('No se pudo registrar en asistencias');
-    return {
-      id: String(data.id),
-      code: data.identificador || value,
-      name: 'Registro de asistencia',
-      status: normalizeStatus(data.estado),
-      type: normalizeType(data.tipo),
-      date: formatDate(data.created_at),
-      time: formatTime(data.created_at),
-      message: 'Asistencia registrada correctamente',
-    };
+    throw new Error('Registro móvil no disponible hasta conectar el endpoint de asistencias');
   },
   recent: async (): Promise<AttendanceLog[]> => {
     const { data, error } = await supabase
-      .from('asistencias')
-      .select('id,estado,identificador,tipo,created_at')
-      .order('created_at', { ascending: false })
+      .from('v_asistencias_estudiante')
+      .select('*')
       .limit(20);
     if (error || !data) return [];
-    return data.map((item: any) => ({
-      id: String(item.id),
-      name: 'Asistencia registrada',
-      status: normalizeStatus(item.estado),
-      code: item.identificador || '-',
-      type: normalizeType(item.tipo),
-      date: formatDate(item.created_at),
-      time: formatTime(item.created_at),
-    }));
+    return data.map(mapLog);
   },
   byStudent: async (studentId?: string): Promise<StudentAttendance[]> => {
     if (!studentId) return [];
     const { data, error } = await supabase
-      .from('asistencias')
-      .select('id,estado,tipo,created_at,estudiante_id')
+      .from('v_asistencias_estudiante')
+      .select('*')
       .eq('estudiante_id', studentId)
-      .order('created_at', { ascending: false })
       .limit(20);
     if (error || !data) return [];
-    return data.map((item: any) => ({
-      id: String(item.id),
-      date: formatDate(item.created_at),
-      time: formatTime(item.created_at),
-      type: normalizeType(item.tipo),
-      status: normalizeStatus(item.estado),
-    }));
+    return data.map((item: any) => {
+      const log = mapLog(item);
+      return { id: log.id, date: log.date || '-', time: log.time, type: log.type || 'entrada', status: log.status };
+    });
   },
 };
